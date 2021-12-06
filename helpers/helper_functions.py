@@ -4,6 +4,7 @@ import numpy as np
 import torch
 import matplotlib.pyplot as plt
 from torchvision.transforms import transforms
+from torch.utils.data import Dataset
 
 # basic transform which converts an image to a tensor
 BASIC_TRANSFORM = transforms.ToTensor()
