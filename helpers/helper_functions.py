@@ -155,6 +155,28 @@ def show_predicted_masks(pred_masks,true_masks, inches_per_img=3, classes = None
   fig.tight_layout()
   return fig, ax
 
+"""This function is copied from https://github.com/EdwardRaff/Inside-Deep-Learning/blob/main/idlmam.py"""
+def moveTo(obj, device):
+    """
+    obj: the python object to move to a device, or to move its contents to a device
+    device: the compute device to move objects to
+    """
+    if hasattr(obj, "to"):
+        return obj.to(device)
+    elif isinstance(obj, list):
+        return [moveTo(x, device) for x in obj]
+    elif isinstance(obj, tuple):
+        return tuple(moveTo(list(obj), device))
+    elif isinstance(obj, set):
+        return set(moveTo(list(obj), device))
+    elif isinstance(obj, dict):
+        to_ret = dict()
+        for key, value in obj.items():
+            to_ret[moveTo(key, device)] = moveTo(value, device)
+        return to_ret
+    else:
+        return obj
+
 
 """This function below is copied from https://github.com/EdwardRaff/Inside-Deep-Learning/blob/main/idlmam.py, but revised
 so that the score_funcs are calculated after each batch rather than at the end. Now, at the end, the scores from each
