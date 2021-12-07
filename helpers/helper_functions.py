@@ -128,3 +128,190 @@ def show_image_and_masks(images_and_masks, class_labels = None, inches_per_image
     ax[0][j].set_title(class_labels[j-1])
   fig.tight_layout()
   return fig, ax
+
+
+def show_predicted_masks(pred_masks,true_masks, inches_per_img=3, classes = None):
+  sigmoid_layer = nn.Sigmoid()
+  # first, check to make sure there are the same number of pred and true masks
+  if len(pred_masks) != len(true_masks):
+    raise ValueError(f"There must be the same number of pred masks as true masks. There are {len(pred_masks)} pred masks and {len(true_masks)} true masks.")
+  rows = len(pred_masks)*2
+  columns = pred_masks[0].shape[0]
+  fig, ax = plt.subplots(rows,columns)
+  fig.set_size_inches((columns*inches_per_img,rows*inches_per_img))
+  for r in range(int(rows/2)):
+    for c in range(columns):
+      ax[r*2][c].imshow(true_masks[r][c,:,:])
+      im = ax[r*2+1][c].imshow(sigmoid_layer(pred_masks[r][c,:,:]),cmap='coolwarm')
+      fig.colorbar(im,ax=ax[r*2+1][c])
+      if c == 0:
+        ax[r*2][c].set_ylabel('True Masks')
+        ax[r*2+1][c].set_ylabel('Pred Masks')
+  if not classes is None:
+    for c in range(columns):
+      ax[0][c].set_title(classes[c])
+  fig.tight_layout()
+  return fig, ax
+
+
+"""This function below is copied from https://github.com/EdwardRaff/Inside-Deep-Learning/blob/main/idlmam.py, but revised
+so that the score_funcs are calculated after each batch rather than at the end. Now, at the end, the scores from each
+batch are averaged. The reason for this change is for memory. Previously, the y_pred and y_true were being appended to a list
+after each batch which required much more space than I have available."""
+def run_epoch(model, optimizer, data_loader, loss_func, device, results, score_funcs, prefix="", desc=None):
+    """
+    model -- the PyTorch model / "Module" to run for one epoch
+    optimizer -- the object that will update the weights of the network
+    data_loader -- DataLoader object that returns tuples of (input, label) pairs. 
+    loss_func -- the loss function that takes in two arguments, the model outputs and the labels, and returns a score
+    device -- the compute lodation to perform training
+    score_funcs -- a dictionary of scoring functions to use to evalue the performance of the model
+    prefix -- a string to pre-fix to any scores placed into the _results_ dictionary. 
+    desc -- a description to use for the progress bar.     
+    """
+    running_loss = []
+    # make a dictionary of empty lists for each score_func
+    score_func_batch_results = {}
+    for name, score_func in score_funcs.items():
+      score_func_batch_results[name] = []
+    start = time.time()
+    for inputs, labels in tqdm(data_loader, desc=desc, leave=False):
+        #Move the batch to the device we are using. 
+        inputs = moveTo(inputs, device)
+        labels = moveTo(labels, device)
+
+        y_hat = model(inputs) #this just computed f_Θ(x(i))
+        # Compute loss.
+        loss = loss_func(y_hat, labels)
+
+        if model.training:
+            loss.backward()
+            optimizer.step()
+            optimizer.zero_grad()
+
+        #Now we are just grabbing some information we would like to have
+        running_loss.append(loss.detach().item())
+
+        if len(score_funcs) > 0 and isinstance(labels, torch.Tensor):
+            #moving labels & predictions back to CPU for computing / storing predictions
+            labels = labels.detach().cpu().numpy()
+            y_hat = y_hat.detach().cpu().numpy()
+            #add to predictions so far
+            y_true = labels
+            y_pred = y_hat
+            # quick check for classification vs. regression,
+            if len(y_pred.shape) == 2 and y_pred.shape[1] > 1: #We have a classification problem, convert to labels
+                y_pred = np.argmax(y_pred, axis=1)
+            #Else, we assume we are working on a regression problem
+            # now going through each of the score functions and appending the score from this batch to it's list of values
+            for name, score_func in score_funcs.items():
+                try:
+                  value = score_func(y_true, y_pred)
+                  score_func_batch_results[name].append(value)
+                except:
+                  score_func_batch_results[name].append(float("NaN"))       
+
+    #end training epoch
+    end = time.time()
+    
+    # now that the epoch is over, average the batch scores for each score function and add them to "results" df
+    for name, score_func in score_funcs.items():
+        try:
+            results[prefix + " " + name].append( np.mean(score_func_batch_results[name]) )
+        except:
+            results[prefix + " " + name].append(float("NaN"))
+    results[prefix + " loss"].append( np.mean(running_loss) )
+    
+    return end-start #time spent on epoch
+  
+  
+"""This is direct copy from https://github.com/EdwardRaff/Inside-Deep-Learning/blob/main/idlmam.py so that it references the new version of 'run_epoch'
+"""  
+def train_network(model, loss_func, train_loader, val_loader=None, test_loader=None,score_funcs=None, 
+                         epochs=50, device="cpu", checkpoint_file=None, 
+                         lr_schedule=None, optimizer=None, disable_tqdm=False
+                        ):
+    """Train simple neural networks
+    
+    Keyword arguments:
+    model -- the PyTorch model / "Module" to train
+    loss_func -- the loss function that takes in batch in two arguments, the model outputs and the labels, and returns a score
+    train_loader -- PyTorch DataLoader object that returns tuples of (input, label) pairs. 
+    val_loader -- Optional PyTorch DataLoader to evaluate on after every epoch
+    test_loader -- Optional PyTorch DataLoader to evaluate on after every epoch
+    score_funcs -- A dictionary of scoring functions to use to evalue the performance of the model
+    epochs -- the number of training epochs to perform
+    device -- the compute lodation to perform training
+    lr_schedule -- the learning rate schedule used to alter \eta as the model trains. If this is not None than the user must also provide the optimizer to use. 
+    optimizer -- the method used to alter the gradients for learning. 
+    
+    """
+    if score_funcs == None:
+        score_funcs = {}#Empty set 
+    
+    to_track = ["epoch", "total time", "train loss"]
+    if val_loader is not None:
+        to_track.append("val loss")
+    if test_loader is not None:
+        to_track.append("test loss")
+    for eval_score in score_funcs:
+        to_track.append("train " + eval_score )
+        if val_loader is not None:
+            to_track.append("val " + eval_score )
+        if test_loader is not None:
+            to_track.append("test "+ eval_score )
+        
+    total_train_time = 0 #How long have we spent in the training loop? 
+    results = {}
+    #Initialize every item with an empty list
+    for item in to_track:
+        results[item] = []
+
+        
+    if optimizer == None:
+        #The AdamW optimizer is a good default optimizer
+        optimizer = torch.optim.AdamW(model.parameters())
+        del_opt = True
+    else:
+        del_opt = False
+
+    #Place the model on the correct compute resource (CPU or GPU)
+    model.to(device)
+    for epoch in tqdm(range(epochs), desc="Epoch", disable=disable_tqdm):
+        model = model.train()#Put our model in training mode
+
+        total_train_time += run_epoch(model, optimizer, train_loader, loss_func, device, results, score_funcs, prefix="train", desc="Training")
+        
+        results["epoch"].append( epoch )
+        results["total time"].append( total_train_time )
+        
+      
+        if val_loader is not None:
+            model = model.eval() #Set the model to "evaluation" mode, b/c we don't want to make any updates!
+            with torch.no_grad():
+                run_epoch(model, optimizer, val_loader, loss_func, device, results, score_funcs, prefix="val", desc="Validating")
+                
+        #In PyTorch, the convention is to update the learning rate after every epoch
+        if lr_schedule is not None:
+            if isinstance(lr_schedule, torch.optim.lr_scheduler.ReduceLROnPlateau):
+                lr_schedule.step(results["val loss"][-1])
+            else:
+                lr_schedule.step()
+                
+        if test_loader is not None:
+            model = model.eval() #Set the model to "evaluation" mode, b/c we don't want to make any updates!
+            with torch.no_grad():
+                run_epoch(model, optimizer, test_loader, loss_func, device, results, score_funcs, prefix="test", desc="Testing")
+        
+        
+        if checkpoint_file is not None:
+            torch.save({
+                'epoch': epoch,
+                'model_state_dict': model.state_dict(),
+                'optimizer_state_dict': optimizer.state_dict(),
+                'results' : results
+                }, checkpoint_file)
+    if del_opt:
+        del optimizer
+
+    return pd.DataFrame.from_dict(results)
