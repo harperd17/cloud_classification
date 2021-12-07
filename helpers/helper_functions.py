@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import torch
 import torchvision
+from torchsat.transforms import transforms_seg
 import matplotlib.pyplot as plt
 from torchvision.transforms import transforms
 from torch.utils.data import Dataset
