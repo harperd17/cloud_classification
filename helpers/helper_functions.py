@@ -3,6 +3,7 @@ from PIL import Image # I should need both of these...
 import numpy as np
 import pandas as pd
 import torch
+from torch import nn
 import torchvision
 from torchsat.transforms import transforms_seg
 import matplotlib.pyplot as plt
