@@ -10,8 +10,6 @@ import torch.nn.functional as F
 from tqdm.autonotebook import tqdm
 import time
 
-# basic transform which converts an image to a tensor
-BASIC_TRANSFORM = transforms.ToTensor()
 
 # this function came from https://www.kaggle.com/amalrda/imagesegmentation
 
@@ -59,7 +57,7 @@ def decode_pixels(pix, rows=2100, cols=1400,label=255):
 
 class CloudData(Dataset):
   """This class is used for the cloud data"""
-  def __init__(self, data_directory = None, mask_df = None, data_type = 'train', transform=BASIC_TRANSFORM, output_width=256, output_height=256):
+  def __init__(self, data_directory = None, mask_df = None, data_type = 'train', transform=None, output_width=256, output_height=256):
     """Instantiate the CloudData object.
     
     Arguments
@@ -104,14 +102,26 @@ class CloudData(Dataset):
     
     # get the actual image
     image = Image.open(self.data_directory+'/train_images/'+image_name)
-    image_tensor = self.transform(image)
+    image_tensor = torchvision.transforms.ToTensor()(image)
     del image # save memory
-    resized_image = F.interpolate(image_tensor.unsqueeze(0), (256, 256))
-    resized_mask = F.interpolate(torch.stack(masks).unsqueeze(0), (256, 256))
-    return resized_image.squeeze(0).float(), resized_mask.squeeze(0).float()
+    resized_image = (F.interpolate(image_tensor.unsqueeze(0), (256, 256))).squeeze(0).float()
+    resized_mask = (F.interpolate(torch.stack(masks).unsqueeze(0), (256, 256))).squeeze(0).float()
+    if self.transform is None:
+      return resized_image, resized_mask
+    return self.perform_transform(resized_image, resized_mask,self.transform)
+
+    #return resized_image.squeeze(0).float(), resized_mask.squeeze(0).float()
 
   def __len__(self):
     return len(self.unique_images)
+
+  def perform_transform(self,img, mask, transform_list):
+    img = (img.permute(1,2,0).numpy()*255).astype(np.uint8)
+    mask = (mask.permute(1,2,0).numpy()*255).astype(np.uint8)
+    transformed_img, transformed_mask = transforms_seg.Compose(
+        transform_list
+    )(img, mask)                                                                                               
+    return torch.tensor(transformed_img/255,dtype=torch.float32).permute(2,0,1), torch.tensor(transformed_mask/255,dtype=torch.float32).permute(2,0,1)
   
   
 def show_image_and_masks(images_and_masks, class_labels = None, inches_per_image = 3):
