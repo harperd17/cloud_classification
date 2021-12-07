@@ -111,3 +111,20 @@ class CloudData(Dataset):
     return len(self.unique_images)
   
   
+def show_image_and_masks(images_and_masks, class_labels = None, inches_per_image = 3):
+  total_sets = len(images_and_masks)
+  images_per_set = 1 + images_and_masks[0][1].shape[0]
+  fig, ax = plt.subplots(total_sets,images_per_set)
+  fig.set_size_inches((inches_per_image*images_per_set,inches_per_image*total_sets))
+  for i, set_of_images in enumerate(images_and_masks):
+    ax[i][0].imshow(set_of_images[0].permute(1,2,0))
+    ax[i][0].axis('off')
+    for j in range(1,images_per_set):
+      ax[i][j].imshow(set_of_images[1][j-1,:,:])
+      ax[i][j].axis('off')
+  # now go through each class and add it as a title in the first row of masks
+  ax[0][0].set_title('Raw Image')
+  for j in range(1,images_per_set):
+    ax[0][j].set_title(class_labels[j-1])
+  fig.tight_layout()
+  return fig, ax
