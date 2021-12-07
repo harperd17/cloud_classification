@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 from torchvision.transforms import transforms
 from torch.utils.data import Dataset
 import torch.nn.functional as F
+from tqdm.autonotebook import tqdm
 
 # basic transform which converts an image to a tensor
 BASIC_TRANSFORM = transforms.ToTensor()
