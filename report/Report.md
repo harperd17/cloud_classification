@@ -1,12 +1,34 @@
 # Segmentation of Cloud Classifications from Satellite Images
+# Abstract
+maybe keep this
+# Introduction
+With increasing concerns about climate change, researchers are trying to build more robust climate models. Clouds play a large role in Earth's climate, making them a crucial part of climate models. However, cloud classification is a tedious task, so automating this process would lead to great strides in existing climate models and more accurate weather prediction. In particular, the following cloud structures are of interest to scientists; Sugar, Gravel, Fish, and Flower clouds. This project is inspired from a [Kaggle competition](https://www.kaggle.com/c/understanding_cloud_organization). From looking at submissions from other Data Scientists, I saw that people took two approaches; image segmentation and bounding box prediction. My project aims to build an image segmentation model rather than a bounding box prediction model because these models are of more interest to me. For more information about the application of this project please visit the link above.
+# The Data
+The data used in this project is satellite imagery from NASA Worldview. The images have three bands (R, G, B) and are each accompanied with pixel encodings for four classifications (fish, flower, gravel, and sugar clouds). The pixel encodings were determined as the union of the labels produced by three different scientists per image. In total, a team of 68 scientists at the Max-Planck-Institute for Meterology in Hamburg, Germany created the labels for this data. More information can be found here. In total, there are 5,546 images with pixel encodings for the cloud classification masks. There are an additional 3,703 test images that have to pixel encoding information.
+# Exploratory Data Analysis
 
-## Introduction
-Copy some stuff to here from the readme
-## The Data
-Copy some stuff to here from the readme
-## Modeling
+# Modeling
 Show in sections what I did
+### The Loss Function
+Finding a good loss function was crucial for these models. Initially, I used cross entropy, but found that often times the model was simply predicting that every pixel was not a cloud. This was because for each image, there is often a blank mask for at least one of the cloud types, and for the masks that weren't blank, they usually made up a small section of the entire image. Therefore, the model could receive decent accuracy by simply saying each pixel was not any of the four classes of clouds.
+Through research I found that a "Dice Loss" was the solution to this issue. A dice loss multiplies the predicted probabilities from the model with the binary labels for the respective class and multiplies the grand sum by 2. This becomes the numerator in the loss. Then the square of the predictions and mask values are summed and added together. This becomes the denominator of the loss. Since a perfect prediction would yield a score of 1 and the worst prediction would yield a score of 0, the loss value becomes 1 - dice loss so that minimizing the loss function will yield us better results instead of worse results (since the original dice loss would need to be maximized). For more information on the dice loss, visit this [article](https://www.jeremyjordan.me/semantic-segmentation/) and search for "Dice coefficient". The benefit of this loss function is that the pixel predictions for the pixels that contain the cloud type will be counted the most.
+I used the implementation of the Dice loss using [segmentation_models_pytorch's implementation](https://github.com/qubvel/segmentation_models.pytorch/blob/master/segmentation_models_pytorch/losses/dice.py). Based on the source code in the link, I am using 'multilabel' mode which expects multiple layers of binary labels (one layer per each cloud mask).
+### Dataset Abstraction
+
+## Initial Model Experimentation
+At first, I wanted to try out some of the basic implementations we reviewed in class. first, I tried a basic CNN where the height and width of the layers stay constant. Second, I tried a CNN with transposes to have the model work more efficiently and hopefully learn to represent the important parts of the images within a smaller space and then use that representation to project predictions up to the correct output size. Lastly, in my initial modeling attempts, I tried a UNet model architecture. 
+Since there are over 5,000 images in the training set, I decided to train these initial models on a random sample of 500 of the training images to keep training time down. The intention is to find what works best and then train that model on all of the data at the end. The results from this intial modeling is shown below.
+#### Basic CNN Architecture
+#### CNN Architecture with Transposes
+#### UNet Architecture
+
+## Experimentation Using Existing Model Architectures
+Next, I decided to try out an existing model architecture. I downloaded the "UnetResNet" model from the [TorchSat library](https://github.com/sshuair/torchsat) withe ** encoder depth, 4 classes, 3 input channels, *** filters, and a dropout rate of *** Since there were pre-trained weights available, I used them. I used these weights as a "warm start" by training the model on my data, allowing all the weights to be adjusted during training. In order to make the model more robust I added transformations. The first is required for the pretrained model to work well and involves normalizing the input with means of [0.485, 0.456, 0.406] and standard deviations of [0.229, 0.224, 0.225]. The other transformations were for robustness of the model and include a random shift up to 20%, random rotation up to 15 degrees, and random brightness. The reason for the random brightness is that streaks of brightness show up in many of the satellite images, and I image this could be confusing for the model, so adding some randomly to the input images will force the model to learn to ignore it. I obtained the following results from training this model ****
+
 ## Conclusion
 Talk about the best model I was able to get
 ## References/Citations
 Posts, libraries, etc.
+https://www.jeremyjordan.me/semantic-segmentation/ - i used this for explaining the dice loss.
+https://github.com/qubvel/segmentation_models.pytorch - I used this for loss functions, and transforms
+https://github.com/sshuair/torchsat preexisting model architectures, pretrained models,
