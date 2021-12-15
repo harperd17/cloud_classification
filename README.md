@@ -16,14 +16,15 @@ In total, there are 5,546 images with pixel encodings for the cloud classificati
 ## Repository Contents
 ---
 <pre>
-Data            : <a href=https://github.com/harperd17/Satellite-Imagery-Analysis/tree/main/Data>Data Files </a>
+EDA             : <a href=https://github.com/harperd17/cloud_classification/tree/main/EDA/EDA.ipynb>EDA</a>
 
-Code            : <a href=https://github.com/harperd17/Satellite-Imagery-Analysis/blob/main/Notebooks/Data_Notebook_Final.ipynb>Data Cleaning Notebook </a>
-                : <a href=https://github.com/harperd17/Satellite-Imagery-Analysis/blob/main/Notebooks/EDA.ipynb>Data Visualization Notebook </a>
-                : <a href=https://github.com/harperd17/Satellite-Imagery-Analysis/blob/main/Notebooks/Modeling_Notebook.ipynb>Clustering Notebook </a>
-                : <a href=https://github.com/harperd17/Satellite-Imagery-Analysis/blob/main/Notebooks/sat_utils.py>Utilities File </a>
+Modeling        : <a href=https://github.com/harperd17/cloud_classification/tree/main/modeling/CNN_segmentation_model.ipynb>Basic CNN Modeling</a>
+                : <a href=https://github.com/harperd17/cloud_classification/tree/main/modeling/transposed_CNN_segmentation_model.ipynb>CNN Modeling With Transpose Layers</a>
+                : <a href=https://github.com/harperd17/cloud_classification/tree/main/modeling/UNet_segmentation_model.ipynb>UNet Modeling</a>
+                : <a href=https://github.com/harperd17/cloud_classification/tree/main/modeling/single_class_segmentation_model.ipynb>Modeling One Class</a>
+                : <a href=https://github.com/harperd17/cloud_classification/tree/main/modeling/UNet_Resnet_segmentation_model.ipynb>UNet ResNet Modeling</a>
                 
-Report          : <a href=https://github.com/harperd17/Satellite-Imagery-Analysis/blob/main/Report/Report.ipynb>Report Notebook</a>
+Report          : <a href=https://github.com/harperd17/cloud_classification/blob/main/report/Report.md>Report Notebook</a>
 </pre>
 
 ## Project Information
