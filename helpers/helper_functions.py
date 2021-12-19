@@ -62,7 +62,7 @@ def decode_pixels(pix, rows=2100, cols=1400,label=255):
 
 class CloudData(Dataset):
   """This class is used for the cloud data"""
-  def __init__(self, data_directory = None, mask_df = None, data_type = 'train', transform=None, output_width=256, output_height=256):
+  def __init__(self, data_directory = None, mask_df = None, data_type = 'train', transform=None, output_width=256, output_height=256, normalize_func = None, preprocessing=None):
     """Instantiate the CloudData object.
     
     Arguments
@@ -91,6 +91,8 @@ class CloudData(Dataset):
     self.data_type = data_type
     self.data_directory = data_directory
     self.transform = transform
+    self.normalize_func = normalize_func
+    self.preprocessing = preprocessing
 
   def __getitem__(self, idx):
     # get the image name
@@ -109,11 +111,25 @@ class CloudData(Dataset):
     image = Image.open(self.data_directory+'/train_images/'+image_name)
     image_tensor = torchvision.transforms.ToTensor()(image)
     del image # save memory
-    resized_image = (F.interpolate(image_tensor.unsqueeze(0), (256, 256))).squeeze(0).float()
-    resized_mask = (F.interpolate(torch.stack(masks).unsqueeze(0), (256, 256))).squeeze(0).float()
+    resized_image = (F.interpolate(image_tensor.unsqueeze(0), (output_width, output_height))).squeeze(0).float()
+    resized_mask = (F.interpolate(torch.stack(masks).unsqueeze(0), (output_width, output_height))).squeeze(0).float()
+    if self.preprocessing:
+      preprocessed = self.preprocessing(image=resized_image, mask=resized_mask)
+      resized_img = preprocessed['image']
+      resized_mask = preprocessed['mask']
     if self.transform is None:
-      return resized_image, resized_mask
-    return self.perform_transform(resized_image, resized_mask,self.transform)
+      if self.normalize_func is None:
+        return resized_image, resized_mask
+      else:
+        return_img, return_mask = self.normalize_func(resized_image, resized_mask)
+        return return_img, return_mask.float()
+    else:
+      if self.normalize_func is None:
+        return_img, return_mask = self.perform_transform(resized_image, resized_mask,self.transform)
+        return return_img, return_mask.float()
+      else:
+        return_img, return_mask = self.normalize_func(self.perform_transform(resized_image,resized_mask,self.transform))
+        return return_img, return_mask.float()
 
     #return resized_image.squeeze(0).float(), resized_mask.squeeze(0).float()
 
@@ -127,7 +143,7 @@ class CloudData(Dataset):
         transform_list
     )(img, mask)                                                                                               
     return torch.tensor(transformed_img/255,dtype=torch.float32).permute(2,0,1), torch.tensor(transformed_mask/255,dtype=torch.float32).permute(2,0,1)
-  
+    
   
 def show_image_and_masks(images_and_masks, class_labels = None, inches_per_image = 3):
   total_sets = len(images_and_masks)
