@@ -128,10 +128,10 @@ class CloudData(Dataset):
         return_img, return_mask = self.perform_transform(resized_image, resized_mask,self.transform)
         return return_img, return_mask.float()
       else:
-        return_img, return_mask = self.normalize_func(self.perform_transform(resized_image,resized_mask,self.transform))
+        return_img, return_mask = self.perform_transform(resized_image,resized_mask,self.transform)
+        return_img, return_mask = self.normalize_func(return_img, return_mask)
         return return_img, return_mask.float()
 
-    #return resized_image.squeeze(0).float(), resized_mask.squeeze(0).float()
 
   def __len__(self):
     return len(self.unique_images)
