@@ -1,5 +1,5 @@
 import cv2
-from PIL import Image # I should need both of these...
+from PIL import Image
 import numpy as np
 import pandas as pd
 import torch
@@ -12,6 +12,8 @@ from torch.utils.data import Dataset
 import torch.nn.functional as F
 from tqdm.autonotebook import tqdm
 import time
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import roc_curve, auc
 
 
 # this function came from https://www.kaggle.com/amalrda/imagesegmentation
@@ -353,3 +355,30 @@ def train_network(model, loss_func, train_loader, val_loader=None, test_loader=N
         del optimizer
 
     return pd.DataFrame.from_dict(results)
+  
+def get_auc(masks,predictions):
+  sigmoid_layer = nn.Sigmoid()
+  if predictions.shape != masks.shape:
+    raise ValueError(f"Predictions and Masks have different shapes. Predictions have shape {predictions.shape} and masks have shape of {masks.shape}")
+  predictions = sigmoid_layer(torch.tensor(predictions))
+  predictions = predictions.detach().numpy()
+  class_accuracies = []
+  for c in range(predictions.shape[1]): # dimension 0 will be batch so class dimension will be 1
+    flattened_pred_c = predictions[:,c,:,:].flatten()
+    flattened_mask_c = masks[:,c,:,:].flatten()
+    fpr, tpr, thresholds = roc_curve(flattened_mask_c,flattened_pred_c)
+    class_accuracies.append(auc(fpr,tpr))
+  return np.nanmean(class_accuracies)
+
+def get_accuracy(masks,predictions):
+  sigmoid_layer = nn.Sigmoid()
+  if predictions.shape != masks.shape:
+    raise ValueError(f"Predictions and Masks have different shapes. Predictions have shape {predictions.shape} and masks have shape of {masks.shape}")
+  predictions = sigmoid_layer(torch.tensor(predictions))
+  predictions = predictions.detach().numpy()
+  class_accuracies = []
+  for c in range(predictions.shape[1]): # dimension 0 will be batch so class dimension will be 1
+    flattened_pred_c = predictions[:,c,:,:].flatten()
+    flattened_mask_c = masks[:,c,:,:].flatten()
+    class_accuracies.append(accuracy_score(flattened_mask_c,(flattened_pred_c>0.5).astype(int)))
+  return np.nanmean(class_accuracies)
