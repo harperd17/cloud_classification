@@ -148,26 +148,29 @@ def show_image_and_masks(images_and_masks, class_labels = None, inches_per_image
   return fig, ax
 
 
-def show_predicted_masks(pred_masks,true_masks, inches_per_img=3, classes = None):
+def show_predicted_masks(pred_masks,true_masks, original_images, inches_per_img=3, classes = None, cmap='coolwarm'):
   sigmoid_layer = nn.Sigmoid()
   # first, check to make sure there are the same number of pred and true masks
   if len(pred_masks) != len(true_masks):
     raise ValueError(f"There must be the same number of pred masks as true masks. There are {len(pred_masks)} pred masks and {len(true_masks)} true masks.")
   rows = len(pred_masks)*2
   columns = pred_masks[0].shape[0]
-  fig, ax = plt.subplots(rows,columns)
+  fig, ax = plt.subplots(rows,columns+1)
   fig.set_size_inches((columns*inches_per_img,rows*inches_per_img))
   for r in range(int(rows/2)):
     for c in range(columns):
-      ax[r*2][c].imshow(true_masks[r][c,:,:])
-      im = ax[r*2+1][c].imshow(sigmoid_layer(pred_masks[r][c,:,:]),cmap='coolwarm')
-      fig.colorbar(im,ax=ax[r*2+1][c])
+      ax[r*2][c+1].imshow(true_masks[r][c,:,:])
+      im = ax[r*2+1][c+1].imshow(sigmoid_layer(pred_masks[r][c,:,:]),cmap=cmap)
+      if not cmap is None:
+        fig.colorbar(im,ax=ax[r*2+1][c+1])
       if c == 0:
         ax[r*2][c].set_ylabel('True Masks')
         ax[r*2+1][c].set_ylabel('Pred Masks')
+    ax[r*2][0].imshow(original_images[r])
+    ax[r*2+1][0].imshow(original_images[r])
   if not classes is None:
     for c in range(columns):
-      ax[0][c].set_title(classes[c])
+      ax[0][c+1].set_title(classes[c])
   fig.tight_layout()
   return fig, ax
 
