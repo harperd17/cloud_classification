@@ -47,3 +47,4 @@ Posts, libraries, etc.
 [Segmentation Models Library](https://github.com/qubvel/segmentation_models.pytorch) - I used this for loss functions, augmentation transforms, and pretrained networks.
 [TorchSat Library](https://github.com/sshuair/torchsat) I used this for pretrained model architectures and augmentations.
 [Inside Deep Learning](https://github.com/EdwardRaff/Inside-Deep-Learning) - I used this for guidance and training functions.
+[Kaggle Notebooks](https://www.kaggle.com/c/understanding_cloud_organization/overview) - I scanned through some of the notebooks to help come up with data processing functions. Functions found from Kaggle are cited through coding comments.
