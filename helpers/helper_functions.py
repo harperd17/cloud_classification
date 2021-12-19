@@ -93,6 +93,8 @@ class CloudData(Dataset):
     self.transform = transform
     self.normalize_func = normalize_func
     self.preprocessing = preprocessing
+    self.output_width = output_width
+    self.output_height = output_height
 
   def __getitem__(self, idx):
     # get the image name
@@ -111,8 +113,8 @@ class CloudData(Dataset):
     image = Image.open(self.data_directory+'/train_images/'+image_name)
     image_tensor = torchvision.transforms.ToTensor()(image)
     del image # save memory
-    resized_image = (F.interpolate(image_tensor.unsqueeze(0), (output_width, output_height))).squeeze(0).float()
-    resized_mask = (F.interpolate(torch.stack(masks).unsqueeze(0), (output_width, output_height))).squeeze(0).float()
+    resized_image = (F.interpolate(image_tensor.unsqueeze(0), (self.output_width, self.output_height))).squeeze(0).float()
+    resized_mask = (F.interpolate(torch.stack(masks).unsqueeze(0), (self.output_width, self.output_height))).squeeze(0).float()
     if self.preprocessing:
       preprocessed = self.preprocessing(image=resized_image, mask=resized_mask)
       resized_img = preprocessed['image']
@@ -132,7 +134,6 @@ class CloudData(Dataset):
         return_img, return_mask = self.normalize_func(return_img, return_mask)
         return return_img, return_mask.float()
 
-
   def __len__(self):
     return len(self.unique_images)
 
@@ -143,7 +144,6 @@ class CloudData(Dataset):
         transform_list
     )(img, mask)                                                                                               
     return torch.tensor(transformed_img/255,dtype=torch.float32).permute(2,0,1), torch.tensor(transformed_mask/255,dtype=torch.float32).permute(2,0,1)
-    
   
 def show_image_and_masks(images_and_masks, class_labels = None, inches_per_image = 3):
   total_sets = len(images_and_masks)
