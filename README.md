@@ -17,8 +17,10 @@ The data is stored in a shared drive. If you have permissions for this drive, yo
 <pre>
 EDA             : <a href=https://github.com/harperd17/cloud_classification/tree/main/EDA/EDA.ipynb>EDA</a>
 
-Modeling        : <a href=https://github.com/harperd17/cloud_classification/tree/main/modeling/CNN_segmentation_model.ipynb>Basic CNN Modeling</a>
-                : <a href=https://github.com/harperd17/cloud_classification/tree/main/modeling/transposed_CNN_segmentation_model.ipynb>CNN Modeling With Transpose Layers</a>
+Final Modeling  : <a href=https://github.com/harperd17/cloud_classification/tree/main/modeling/final_model.ipynb>Final Model</a>
+
+Intermediate    : <a href=https://github.com/harperd17/cloud_classification/tree/main/modeling/CNN_segmentation_model.ipynb>Basic CNN Modeling</a>
+Modeling        : <a href=https://github.com/harperd17/cloud_classification/tree/main/modeling/transposed_CNN_segmentation_model.ipynb>CNN Modeling With Transpose Layers</a>
                 : <a href=https://github.com/harperd17/cloud_classification/tree/main/modeling/UNet_segmentation_model.ipynb>UNet Modeling</a>
                 : <a href=https://github.com/harperd17/cloud_classification/tree/main/modeling/single_class_segmentation_model.ipynb>Modeling One Class</a>
                 : <a href=https://github.com/harperd17/cloud_classification/tree/main/modeling/UNet_Resnet_segmentation_model.ipynb>UNet ResNet Modeling</a>
@@ -30,5 +32,3 @@ Report          : <a href=https://github.com/harperd17/cloud_classification/blob
 ---
 <b>Author: </b>David Harper <br>
 <b>Language: </b>Python <br>
-<b>Tools/IDE: </b>********Jupyter Notebook and Spyder via Anaconda <br>
-<b>Libraries: </b>*********numpy, pandas, plotly, matplotlib, math, sklearn, seaborn, mpu, geopy, sentinelhub, zipfile, os, datetime, requests, urllib, urllib3, scipy
