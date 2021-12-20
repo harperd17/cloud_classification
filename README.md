@@ -15,15 +15,14 @@ The data is stored in a shared drive. If you have permissions for this drive, yo
 ## Repository Contents
 ---
 <pre>
-EDA             : <a href=https://github.com/harperd17/cloud_classification/tree/main/EDA/EDA.ipynb>EDA</a>
+EDA             : <a href=https://github.com/harperd17/cloud_classification/tree/main/EDA>EDA</a>
 
 Final Modeling  : <a href=https://github.com/harperd17/cloud_classification/tree/main/modeling/final_model.ipynb>Final Model</a>
 
 Intermediate    : <a href=https://github.com/harperd17/cloud_classification/tree/main/modeling/CNN_segmentation_model.ipynb>Basic CNN Modeling</a>
 Modeling        : <a href=https://github.com/harperd17/cloud_classification/tree/main/modeling/transposed_CNN_segmentation_model.ipynb>CNN Modeling With Transpose Layers</a>
                 : <a href=https://github.com/harperd17/cloud_classification/tree/main/modeling/UNet_segmentation_model.ipynb>UNet Modeling</a>
-                : <a href=https://github.com/harperd17/cloud_classification/tree/main/modeling/single_class_segmentation_model.ipynb>Modeling One Class</a>
-                : <a href=https://github.com/harperd17/cloud_classification/tree/main/modeling/UNet_Resnet_segmentation_model.ipynb>UNet ResNet Modeling</a>
+                : <a href=https://github.com/harperd17/cloud_classification/tree/main/modeling/pretrained_models.ipynb>Pretrained Modeling</a>
                 
 Report          : <a href=https://github.com/harperd17/cloud_classification/blob/main/report/Report.md>Report Notebook</a>
 </pre>
