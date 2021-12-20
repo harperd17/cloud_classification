@@ -45,12 +45,13 @@ As mentioned before, my final model has a ResNet encoder with Imagenet weights. 
 This model yielded the following sample predictions.
 ![Sample Mask Predictions](../figures/sample_mask_predictions.png)
 Overall, these predictions look much better than the predictions from my previous models. There aren't any obvious holes in the predicted regions, and for the most part, the predicted regions have significant overlap with the true regions. In cases where an image doesn't have any regions of a particular cloud, there often times aren't any predicted regions generated from the model. However, it appears there is more room for growth. For example, the predicted regions often overestimate the true region and are sometimes shifted. I think this is a difficult problem to solve and this project makes a nice leap towards an accurate solution.
+For more details, see the [Final Modeling Notebook](https://github.com/harperd17/cloud_classification/blob/main/modeling/final_model.ipynb).
 ## Future Additions
 There are certainly more ways to improve this model. In particular, one could experiment with different optimizers. One could also experiment with learning rate schedulers. I didn't use any learning rate schedulers because the constant default learning rate for the Adams optimizer worked pretty well for me. Another reason is that this model requires a lot of time to train. Experimenting with different optimizers and learning rate schedulers would have been a painful process. However, it could potentially give the model a decent improvement. 
 Another future addition could be more research into thresholding the masks. The thresholding I performed wasn't perfect and the model seemed to have a more difficult time training on it. However, the predictions from training of thresholded masks could be more useful. For example, it may be important to not only know the regions where certain clouds are present in a satellite image, but also how much area they make up. This is difficult to discern with the current masks.
 ## References/Citations
-[Semantic Segmentation Article](https://www.jeremyjordan.me/semantic-segmentation/) - I used this for explaining the dice loss.
-[Segmentation Models Library](https://github.com/qubvel/segmentation_models.pytorch) - I used this for loss functions, augmentation transforms, and pretrained networks.
-[TorchSat Library](https://github.com/sshuair/torchsat) I used this for pretrained model architectures and augmentations.
-[Inside Deep Learning](https://github.com/EdwardRaff/Inside-Deep-Learning) - I used this for guidance and training functions.
-[Kaggle Notebooks](https://www.kaggle.com/c/understanding_cloud_organization/overview) - I scanned through some of the notebooks to help come up with data processing functions. Functions found from Kaggle are cited through coding comments.
+[Semantic Segmentation Article](https://www.jeremyjordan.me/semantic-segmentation/) - I used this for explaining the dice loss.<br>
+[Segmentation Models Library](https://github.com/qubvel/segmentation_models.pytorch) - I used this for loss functions, augmentation transforms, and pretrained networks.<br>
+[TorchSat Library](https://github.com/sshuair/torchsat) I used this for pretrained model architectures and augmentations.<br>
+[Inside Deep Learning](https://github.com/EdwardRaff/Inside-Deep-Learning) - I used this for guidance and training functions.<br>
+[Kaggle Notebooks](https://www.kaggle.com/c/understanding_cloud_organization/overview) - I scanned through some of the notebooks to help come up with data processing functions. Functions found from Kaggle are cited through coding comments.<br>
