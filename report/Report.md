@@ -1,6 +1,6 @@
 # Segmentation of Cloud Classifications from Satellite Images
-# Abstract
-maybe keep this
+
+
 # Introduction
 With increasing concerns about climate change, researchers are trying to build more robust climate models. Clouds play a large role in Earth's climate, making them a crucial part of climate models. However, cloud classification is a tedious task, so automating this process would lead to great strides in existing climate models and more accurate weather prediction. In particular, the following cloud structures are of interest to scientists; Sugar, Gravel, Fish, and Flower clouds. This project is inspired from a [Kaggle competition](https://www.kaggle.com/c/understanding_cloud_organization). From looking at submissions from other Data Scientists, I saw that people took two approaches; image segmentation and bounding box prediction. My project aims to build an image segmentation model rather than a bounding box prediction model because these models are of more interest to me. For more information about the application of this project please visit the link above.
 # The Data
