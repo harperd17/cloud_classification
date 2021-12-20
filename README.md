@@ -23,6 +23,7 @@ Intermediate    : <a href=https://github.com/harperd17/cloud_classification/tree
 Modeling        : <a href=https://github.com/harperd17/cloud_classification/tree/main/modeling/transposed_CNN_segmentation_model.ipynb>CNN Modeling With Transpose Layers</a>
                 : <a href=https://github.com/harperd17/cloud_classification/tree/main/modeling/UNet_segmentation_model.ipynb>UNet Modeling</a>
                 : <a href=https://github.com/harperd17/cloud_classification/tree/main/modeling/pretrained_models.ipynb>Pretrained Modeling</a>
+                : <a href=https://github.com/harperd17/cloud_classification/tree/main/modeling/modeling_thresholded_masks.ipynb>Modeling With Thresholded Masks</a>
                 
 Report          : <a href=https://github.com/harperd17/cloud_classification/blob/main/report/Report.md>Report Notebook</a>
 </pre>
